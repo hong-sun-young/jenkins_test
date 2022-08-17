@@ -12,9 +12,6 @@ node {
         notifySlack("STARTED", "#0000FF")
 
 
-
-    def app
-
     stage('Clone repository') {
         checkout scm
     }
