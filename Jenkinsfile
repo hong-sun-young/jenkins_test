@@ -1,16 +1,16 @@
-node {
+pipeline {
+    agent none
+ 
+    environment {
+        slackSend channel: SLACK_CHANNEL
+    }
 
-    def notifySlack(STATUS, COLOR) {
-    slackSend channel: SLACK_CHANNEL, 
-	  message: STATUS+" : " + "${env.JOB_NAME}[${env.BUILD_NUMBER}] (${env.BUILD_URL})", 
-	  color: COLOR, tokenCredentialId: TOKEN_CREDENTIAL_ID, 
-	  teamDomain: TEAM_DOMAIN
-}
-
-    try {
-        // 빌드 시작을 알리는 메시지
-        notifySlack("STARTED", "#0000FF")
-
+    stages {
+        stage('Start') {
+            steps {
+                slackSend (channel: SLACK_CHANNEL, color: '#FFFF00', message: "STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})", teamDomain: TEAM_DOMAIN, tokenCredentialId: TOKEN_CREDENTIAL_ID)
+            }
+        }
 
     stage('Clone repository') {
         checkout scm
@@ -35,11 +35,13 @@ node {
                 build job: 'updatemanifest', parameters: [string(name: 'DOCKERTAG', value: env.BUILD_NUMBER)]
         }
 
-    // 빌드 성공시
-    notifySlack("SUCCESS", "#00FF00")
- 	  } catch(e) {
-    // 빌드 실패시
-    notifySlack("FAILED", "#FF0000")
-	  }
+    post {
+        success {
+            slackSend (channel: SLACK_CHANNEL, color: '#00FF00', message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})", teamDomain: TEAM_DOMAIN, tokenCredentialId: TOKEN_CREDENTIAL_ID)
+        }
+        failure {
+            slackSend (channel: SLACK_CHANNEL, color: '#FF0000', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})", teamDomain: TEAM_DOMAIN, tokenCredentialId: TOKEN_CREDENTIAL_ID)
+        }
+    }
 
 }
