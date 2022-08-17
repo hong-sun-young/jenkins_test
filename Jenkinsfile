@@ -1,9 +1,5 @@
 pipeline {
     agent none
- 
-    environment {
-        slackSend channel: SLACK_CHANNEL
-    }
 
     stages {
         stage('Start') {
@@ -44,5 +40,4 @@ pipeline {
         }
     }
 
-    }
 }
