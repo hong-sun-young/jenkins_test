@@ -16,9 +16,7 @@ pipeline {
 
         stage('Build image') {
             steps {
-                script{
                     app = docker.build("hooong2/project")
-                }
              }
          }
 
@@ -47,5 +45,4 @@ pipeline {
         }
     }
 
-}
 }
